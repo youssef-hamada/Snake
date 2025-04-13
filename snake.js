@@ -11,9 +11,13 @@ var snakeY = blockSize * 5;
 var valoX = 0;
 var valoY = 0;
 
+var snakeBody = [];
+
 //food
 var foodX;
 var foodY;
+
+var gameOver = false;
 
 window.onload = function () {
   board = document.getElementById("board");
@@ -28,6 +32,13 @@ window.onload = function () {
 
 function update() {
   //   requestAnimationFrame(update);
+  if (gameOver) {
+    context.fillStyle = "white";
+    context.font = "50px Arial";
+    context.fillText("Game Over", board.width / 4, board.height / 2);
+    return;
+  }
+
   context.fillStyle = "black";
   context.fillRect(0, 0, board.width, board.height);
 
@@ -35,13 +46,39 @@ function update() {
   context.fillRect(foodX, foodY, blockSize, blockSize);
 
   if (snakeX == foodX && snakeY == foodY) {
+    snakeBody.push([foodX, foodY]);
     placeFood();
+  }
+
+  for (let i = snakeBody.length - 1; i > 0; i--) {
+    snakeBody[i] = snakeBody[i - 1];
+  }
+  if (snakeBody.length) {
+    snakeBody[0] = [snakeX, snakeY];
   }
 
   context.fillStyle = "green";
   snakeX += valoX * blockSize;
   snakeY += valoY * blockSize;
   context.fillRect(snakeX, snakeY, blockSize, blockSize);
+  for (let i = 0; i < snakeBody.length; i++) {
+    context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize);
+  }
+
+  if (
+    snakeX < 0 ||
+    snakeX >= board.width ||
+    snakeY < 0 ||
+    snakeY >= board.height
+  ) {
+    gameOver = true;
+  }
+
+  for (let i = 0; i < snakeBody.length; i++) {
+    if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]) {
+      gameOver = true;
+    }
+  }
 }
 
 function changeDirection(e) {
